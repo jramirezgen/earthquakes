@@ -1,0 +1,99 @@
+---
+title: "Working with the NOAA earthquake data"
+author: "Jefferson Ramirez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with the NOAA earthquake data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4)
+```
+
+## Purpose
+
+`earthquakes` provides tools to **clean**, **visualize** and **map** the NOAA
+Significant Earthquake Database. The data are messy in a few ways that this
+package fixes: the date is split in three columns, the coordinates can be read as
+text, and the location names carry the country in capital letters.
+
+```{r load}
+library(earthquakes)
+library(dplyr)
+library(ggplot2)
+
+file <- system.file("extdata", "earthquakes.tsv.gz", package = "earthquakes")
+raw <- readr::read_delim(file, delim = "\t", show_col_types = FALSE)
+dim(raw)
+```
+
+## Cleaning: `eq_clean_data()` and `eq_location_clean()`
+
+`eq_clean_data()` adds a `DATE` column (class `Date`) and makes `LATITUDE` and
+`LONGITUDE` numeric. `eq_location_clean()` drops the country from
+`LOCATION_NAME` and uses title case.
+
+```{r clean}
+clean <- raw %>% eq_clean_data() %>% eq_location_clean()
+clean %>%
+  filter(COUNTRY == "MEXICO", lubridate::year(DATE) >= 2000) %>%
+  select(DATE, LOCATION_NAME, EQ_PRIMARY, TOTAL_DEATHS) %>%
+  head()
+```
+
+## Time line: `geom_timeline()` and `geom_timeline_label()`
+
+`geom_timeline()` draws one point per earthquake along a time line. Map the
+magnitude to `size` and the number of deaths to `colour`. A factor mapped to `y`
+gives one time line per level.
+
+```{r timeline}
+usa <- clean %>%
+  filter(COUNTRY == "USA", lubridate::year(DATE) >= 2000)
+
+ggplot(usa, aes(x = DATE, size = EQ_PRIMARY, colour = TOTAL_DEATHS)) +
+  geom_timeline(alpha = 0.5) +
+  geom_timeline_label(aes(label = LOCATION_NAME), n_max = 5) +
+  scale_size_continuous(name = "Richter scale value") +
+  labs(colour = "# deaths") +
+  theme_timeline()
+```
+
+```{r timeline-strata, fig.height = 5}
+two <- clean %>%
+  filter(COUNTRY %in% c("USA", "CHINA"), lubridate::year(DATE) >= 2000)
+
+ggplot(two, aes(x = DATE, y = COUNTRY, size = EQ_PRIMARY, colour = TOTAL_DEATHS)) +
+  geom_timeline(alpha = 0.5) +
+  geom_timeline_label(aes(label = LOCATION_NAME), n_max = 3) +
+  scale_size_continuous(name = "Richter scale value") +
+  labs(colour = "# deaths") +
+  theme_timeline()
+```
+
+`geom_timeline_label()` takes `x` and `label` and labels the `n_max` largest
+earthquakes (by the `size` aesthetic) of each time line.
+
+## Map: `eq_map()` and `eq_create_label()`
+
+`eq_map()` draws the epicentres on an interactive map; each circle has a radius
+proportional to the magnitude and a pop-up with the column given in `annot_col`.
+
+```{r map}
+mexico <- clean %>%
+  filter(COUNTRY == "MEXICO", lubridate::year(DATE) >= 2000)
+
+eq_map(mexico, annot_col = "DATE")
+```
+
+`eq_create_label()` builds richer HTML labels (location, magnitude and total
+deaths; missing values are left out):
+
+```{r map-label}
+mexico %>%
+  mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```

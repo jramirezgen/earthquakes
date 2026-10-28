@@ -1,0 +1,30 @@
+Package: earthquakes
+Type: Package
+Title: Clean, Visualize and Map the NOAA Significant Earthquakes Database
+Version: 0.1.0
+Authors@R: person("Jefferson", "Ramirez", email = "jramirezgen@gmail.com",
+    role = c("aut", "cre"))
+Description: Tools to clean the NOAA (National Oceanic and Atmospheric
+    Administration) Significant Earthquake Database, draw timelines of
+    earthquakes with 'ggplot2' (time line geom and labels) and map the
+    epicentres on an interactive 'leaflet' map with annotations. The package
+    includes a copy of the database.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 3.5.0)
+Imports:
+    dplyr,
+    ggplot2,
+    grid,
+    leaflet,
+    lubridate,
+    magrittr,
+    scales,
+    stringr
+Suggests:
+    knitr,
+    readr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.0

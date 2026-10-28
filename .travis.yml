@@ -1,0 +1,20 @@
+language: r
+dist: bionic
+r: "4.3.1"
+pandoc_version: 2.19.2
+cache: packages
+repos:
+  CRAN: https://packagemanager.posit.co/cran/__linux__/bionic/latest
+apt_packages:
+  - qpdf
+  - libuv1-dev
+  - libcurl4-openssl-dev
+  - libssl-dev
+  - libxml2-dev
+  - libfreetype6-dev
+  - libpng-dev
+  - libharfbuzz-dev
+  - libfribidi-dev
+  - libjpeg-dev
+  - libtiff5-dev
+warnings_are_errors: true
