@@ -19,6 +19,7 @@ apt_packages:
   - libtiff5-dev
   - tidy
 warnings_are_errors: true
+r_check_args: "--timings"
 before_install:
   - echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' >> ~/.Rprofile
 env:
