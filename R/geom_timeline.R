@@ -5,7 +5,16 @@
 #' mapped to \code{y} (for example the country), one time line is drawn per
 #' level.
 #'
-#' @inheritParams ggplot2::layer
+#' @param mapping Set of aesthetic mappings created by \code{\link[ggplot2]{aes}}.
+#' @param data The data to be displayed in this layer; if \code{NULL}, the data
+#'   of the plot are used.
+#' @param stat The statistical transformation to use; defaults to
+#'   \code{"identity"}.
+#' @param position Position adjustment; defaults to \code{"identity"}.
+#' @param show.legend Logical. Should this layer be included in the legends?
+#'   \code{NA}, the default, includes it if any aesthetic is mapped.
+#' @param inherit.aes If \code{FALSE}, the layer does not inherit the aesthetics
+#'   of the plot.
 #' @param xmin,xmax Optional dates (class \code{Date} or anything coercible
 #'   with \code{as.Date}) that limit the earthquakes drawn. By default the whole
 #'   range of the data.
@@ -51,7 +60,18 @@ GeomTimeline <- ggplot2::ggproto(
   optional_aes = c("y"),
   default_aes = ggplot2::aes(y = 0.5, colour = "grey30", size = 3, alpha = 0.5,
                              shape = 19, stroke = 0.5),
-  draw_key = ggplot2::draw_key_point,
+  draw_key = function(data, params, size) {
+    # clave de leyenda propia: no depende de como cada version de ggplot2
+    # completa shape/colour/alpha en los datos de la leyenda
+    col <- if (is.null(data$colour) || is.na(data$colour)) "grey30" else data$colour
+    alp <- if (is.null(data$alpha) || is.na(data$alpha)) 0.5 else data$alpha
+    sz <- if (is.null(data$size) || is.na(data$size)) 3 else data$size
+    grid::pointsGrob(
+      0.5, 0.5, pch = 19,
+      gp = grid::gpar(col = scales::alpha(col, alp), fill = scales::alpha(col, alp),
+                      fontsize = sz * ggplot2::.pt)
+    )
+  },
 
   setup_data = function(data, params) {
     if (!is.null(params$xmin))
@@ -123,7 +143,16 @@ theme_timeline <- function() {
 #' example the location) to the largest earthquakes of a time line made with
 #' \code{\link{geom_timeline}}.
 #'
-#' @inheritParams ggplot2::layer
+#' @param mapping Set of aesthetic mappings created by \code{\link[ggplot2]{aes}}.
+#' @param data The data to be displayed in this layer; if \code{NULL}, the data
+#'   of the plot are used.
+#' @param stat The statistical transformation to use; defaults to
+#'   \code{"identity"}.
+#' @param position Position adjustment; defaults to \code{"identity"}.
+#' @param show.legend Logical. Should this layer be included in the legends?
+#'   \code{NA}, the default, includes it if any aesthetic is mapped.
+#' @param inherit.aes If \code{FALSE}, the layer does not inherit the aesthetics
+#'   of the plot.
 #' @param n_max Maximum number of earthquakes to label per time line: those with
 #'   the largest magnitude (the \code{size} aesthetic). By default all.
 #' @param na.rm If \code{FALSE}, missing values are removed with a warning.
@@ -166,6 +195,7 @@ GeomTimelineLabel <- ggplot2::ggproto(
   required_aes = c("x", "label"),
   optional_aes = c("y", "size"),
   default_aes = ggplot2::aes(y = 0.5, size = 1),
+  draw_key = ggplot2::draw_key_blank,
 
   draw_panel = function(data, panel_params, coord, n_max = NULL) {
     ngroups <- length(unique(data$y))
