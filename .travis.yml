@@ -18,3 +18,5 @@ apt_packages:
   - libjpeg-dev
   - libtiff5-dev
 warnings_are_errors: true
+before_install:
+  - echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' >> ~/.Rprofile
