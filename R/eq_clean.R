@@ -1,4 +1,6 @@
 #' @importFrom magrittr %>%
+#' @importFrom grid gpar
+#' @importFrom scales alpha
 NULL
 
 #' Clean the NOAA earthquake data

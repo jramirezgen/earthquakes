@@ -13,7 +13,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 3.5.0)
 Imports:
-    dplyr,
     ggplot2,
     grid,
     leaflet,
@@ -22,6 +21,7 @@ Imports:
     scales,
     stringr
 Suggests:
+    dplyr,
     knitr,
     readr,
     rmarkdown,

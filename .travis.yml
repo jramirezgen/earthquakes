@@ -17,6 +17,10 @@ apt_packages:
   - libfribidi-dev
   - libjpeg-dev
   - libtiff5-dev
+  - tidy
 warnings_are_errors: true
 before_install:
   - echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' >> ~/.Rprofile
+env:
+  global:
+    - _R_CHECK_FUTURE_FILE_TIMESTAMPS_=false
